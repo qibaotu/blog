@@ -1,0 +1,67 @@
+---
+title: Joint variant calling
+author: ''
+date: '2019-03-06'
+slug: joint-variant-calling
+categories:
+  - Bioinformatics
+tags:
+  - GATK4
+  - SNP
+  - RNA-seq
+---
+
+
+
+<p>When I tried to implement the pipeline for variant calling from RNA-seq data, I was confused about how to deal with biological replicated. According to <a href="https://gatkforums.broadinstitute.org/gatk/discussion/5894/variant-calling-with-biological-replicates" class="uri">https://gatkforums.broadinstitute.org/gatk/discussion/5894/variant-calling-with-biological-replicates</a> , it seems that there are multiple ways to do this.</p>
+<p>I tested three different ways on three replicates from HCT116b. In specific,the main pipeline(<a href="https://htmlpreview.github.io/?https://github.com/qibaotu/Cell-line-authentication/blob/master/vignette/Cell_line.html" class="uri">https://htmlpreview.github.io/?https://github.com/qibaotu/Cell-line-authentication/blob/master/vignette/Cell_line.html</a>) is the same, except where to combine replicates.</p>
+<p>I tested three different ways on three replicates from HCT116b. In specific,the main pipeline(<a href="https://htmlpreview.github.io/?https://github.com/qibaotu/Cell-line-authentication/blob/master/vignette/Cell_line.html)is" class="uri">https://htmlpreview.github.io/?https://github.com/qibaotu/Cell-line-authentication/blob/master/vignette/Cell_line.html)is</a> the same, except where to combine replicates.</p>
+<p><em>Way1</em>. Combine bam file after <code>SplitNCigarReads</code>. In this way I would have one combined bam file to feed the <code>BaseRecalibrator</code>.</p>
+<pre class="bash"><code># merge bam file using samtools
+samtools merge ./way1/HCT116b_dedup_split.bam SRR2481145_dedup_split.bam SRR2481146_dedup_split.bam SRR2481147_dedup_split.bam
+
+## feed combined bam to the following step
+gatk BaseRecalibrator \
+        -R $genomeFastaFiles \
+        -I HCT116b_dedup_split.bam \
+        --known-sites 1000G_phase1.snps.high_confidence.hg38.vcf.gz \
+        --known-sites Mills_and_1000G_gold_standard.indels.hg38.vcf.gz \
+            --known-sites dbsnp_146.hg38.vcf.gz \
+        -O HCT116b_recal_data.table</code></pre>
+<p><em>Way2</em>. Feed three bam files to <code>BaseRecalibrator</code>. Since these three bam files have the same sample ID(in this case, HCT116b), BQSR step will recoganize that they belong to the same sample.</p>
+<pre class="bash"><code>gatk BaseRecalibrator \
+        -R $genomeFastaFiles \
+        -I SRR2481145_dedup_split.bam \
+            -I SRR2481146_dedup_split.bam \
+            -I SRR2481147_dedup_split.bam \
+        --known-sites 1000G_phase1.snps.high_confidence.hg38.vcf.gz \
+        --known-sites Mills_and_1000G_gold_standard.indels.hg38.vcf.gz \
+            --known-sites dbsnp_146.hg38.vcf.gz \
+        -O HCT116b_recal_data.table
+</code></pre>
+<p><em>Way3</em>. Perform alignment, de-duplication, indel realignment and BQSR at the replicate-level. This is then followed by joint variant calling and at the sample-level.</p>
+<pre class="bash"><code>## run HaplotypeCaller on each bam under the -ERC GVCF mode
+for file in /pylon5/cc5fpcp/xiej/Cell_Line/RST2/way3/*BQSR.bam
+do
+time gatk HaplotypeCaller \
+        -R $genomeFastaFiles \
+        -I $file \
+        --dont-use-soft-clipped-bases \
+        -stand-call-conf 20.0 \
+        -O $(basename $file _BQSR.bam).g.vcf \
+            -ERC GVCF
+done
+
+## combine gvcf
+gatk CombineGVCFs \
+        -R $genomeFastaFiles \
+        --variant SRR2481145_1.g.vcf \
+            --variant SRR2481146_1.g.vcf \
+            --variant SRR2481147_1.g.vcf \
+        -O HCT116b.g.vcf 
+        
+##  genoetype
+gatk GenotypeGVCFs \
+        -R $genomeFastaFiles \
+        -V HCT116b.g.vcf \
+        -O HCT116b.vcf </code></pre>

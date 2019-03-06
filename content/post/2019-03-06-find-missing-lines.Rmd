@@ -1,0 +1,35 @@
+---
+title: Find missing lines
+author: ''
+date: '2019-03-06'
+slug: find-missing-lines
+categories:
+  - Linux
+tags:
+  - bash
+---
+**Background**: I was running a variant calling pipeline for ~1800 sra files. The sra IDs were saved as a txt file. To be prudent, I split the file containint IDs into three,then downloaded sra files and run the pipeline based on the three ID files(btw, each sra ID had one folder to save the result, and the raw sra files were deleted after the pipeline is done).  There were 1457 unique sra IDs, yet only 1,173 were done (i.e., I have 1,173 folders). In the meanwhile,  ~200 sra files remained unprocessed.
+
+So I need to find out IDs for the to-be-downloaded sra and then run them together with those ~200 left sra 
+
+**Solution**: use the `comm` (https://linux.die.net/man/1/comm)command
+```{r,engine='bash',eval=FALSE}
+# extract downloaded sra IDs
+cd /gpfs/scratch/juan.xie/DATA/sra
+ls >sra.txt
+
+# extract the IDs for already done sra
+cd /gpfs/scratch/juan.xie/BreastCancer
+ls >done.txt
+
+# ID is the file which contain complete sra IDs
+sort ID >ID_sort
+sort done.txt >done_sort
+sort sra.txt >sra_sort
+
+# use comm to extract to-be-processed sra
+comm -23 ID_sort done_sort >notdone
+
+comm -23 notdone sra_sort >leftsra
+
+```
