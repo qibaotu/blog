@@ -1,0 +1,67 @@
+---
+title: Optional argument in R function
+author: ''
+date: '2019-03-15'
+slug: optional-argument-in-r-function
+categories:
+  - R
+tags: []
+---
+
+
+
+<div id="background" class="section level2">
+<h2>Background:</h2>
+<p>I was trying to wrap several R functions into a single function, and one component function has optional argument.</p>
+<pre class="r"><code>## ref is an optional argument
+CLUSTERING(Raw,blocks,ref=NULL){
+  ...
+  if(!is.null(ref)){
+    ...
+  }
+}
+## final()is a function that will call CLUSTERING()
+final &lt;-function(i,ref=NULL){
+  ...
+  CLUSTERING(i,blocks,ref=NULL)
+}</code></pre>
+<p>I want the function work in such a way that if provide <code>ref</code> an actual value, it returns a list of labels and a dataframe, if no <code>ref</code> is provided, just return the list of labels</p>
+<p>The problem is that for <strong>CLUSTERING()</strong>,specify <code>ref=NULL</code> or provide a value to <code>ref</code>, it works as expected, while <strong>final()</strong> function only returns list of labels, no matter if <code>ref</code>has value or not.</p>
+<p>After many tries&amp;fails, I found <a href="https://dzone.com/articles/r-function-argument-lists-and-missing">this post</a>.</p>
+<p>From this post, I got the idea that it is recommended to specify a value of NULL for optional argument. And it seems that something happens to the value of argument during function calling. To make clear what happens, I tried two different function calling:</p>
+<pre class="r"><code>f1 &lt;- function(a=&#39;A&#39;,b=NULL) {
+  print( ifelse( is.null(a), &#39;a not specified&#39;, paste(&#39;a =&#39;,a) ) )
+  print( ifelse( is.null(b), &#39;b not specified&#39;, paste(&#39;b =&#39;,b) ) )
+}
+Callf1 &lt;-function(a=&#39;A&#39;,b=NULL){
+  print( ifelse( is.null(a), &#39;# a not specified&#39;, paste(&#39;# a =&#39;,a) ) )
+  print( ifelse( is.null(b), &#39;# b not specified&#39;, paste(&#39;# b =&#39;,b) ) )
+ f1()
+}
+Callf1(a=&#39;A&#39;,b=NULL)</code></pre>
+<pre><code>## [1] &quot;# a = A&quot;
+## [1] &quot;# b not specified&quot;
+## [1] &quot;a = A&quot;
+## [1] &quot;b not specified&quot;</code></pre>
+<pre class="r"><code>Callf1(a=&#39;A&#39;,b=&#39;B&#39;)</code></pre>
+<pre><code>## [1] &quot;# a = A&quot;
+## [1] &quot;# b = B&quot;
+## [1] &quot;a = A&quot;
+## [1] &quot;b not specified&quot;</code></pre>
+<pre class="r"><code>Callf1_2 &lt;-function(a=&#39;A&#39;,b=NULL){
+  print( ifelse( is.null(a), &#39;# a not specified&#39;, paste(&#39;# a =&#39;,a) ) )
+  print( ifelse( is.null(b), &#39;# b not specified&#39;, paste(&#39;# b =&#39;,b) ) )
+ f1(a,b)
+}
+Callf1_2(a=&#39;A&#39;,b=&#39;NULL&#39;)</code></pre>
+<pre><code>## [1] &quot;# a = A&quot;
+## [1] &quot;# b = NULL&quot;
+## [1] &quot;a = A&quot;
+## [1] &quot;b = NULL&quot;</code></pre>
+<pre class="r"><code>Callf1_2(a=&#39;A&#39;,b=&#39;B&#39;)</code></pre>
+<pre><code>## [1] &quot;# a = A&quot;
+## [1] &quot;# b = B&quot;
+## [1] &quot;a = A&quot;
+## [1] &quot;b = B&quot;</code></pre>
+<p>Using <strong>Callf1()</strong>, whether we provide value for <em>b</em> or not, it always return <code>b not specified</code>.</p>
+</div>

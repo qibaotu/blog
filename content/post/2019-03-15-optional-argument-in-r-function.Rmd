@@ -1,0 +1,54 @@
+---
+title: Optional argument in R function
+author: ''
+date: '2019-03-15'
+slug: optional-argument-in-r-function
+categories:
+  - R
+tags: []
+---
+## Background: 
+I was trying to wrap several R functions into a single function, and one component function has optional argument.
+```{r,eval=FALSE}
+## ref is an optional argument
+CLUSTERING(Raw,blocks,ref=NULL){
+  ...
+  if(!is.null(ref)){
+    ...
+  }
+}
+## final()is a function that will call CLUSTERING()
+final <-function(i,ref=NULL){
+  ...
+  CLUSTERING(i,blocks,ref=NULL)
+}
+```
+I want the function work in such a way that if provide `ref` an actual value, it returns a list of labels and a dataframe, if no `ref` is provided, just return the list of labels
+
+The problem is that for **CLUSTERING()**,specify `ref=NULL` or provide a value to `ref`, it works as expected, while **final()** function only returns list of labels, no matter if `ref`has value or not.
+
+After many tries&fails, I found [this post](https://dzone.com/articles/r-function-argument-lists-and-missing).
+
+From this post, I got the idea that it is recommended to specify a value of NULL for optional argument. And it seems that something happens to the value of argument during function calling. To make clear what happens, I tried two different function calling:
+```{r fcuntion calling}
+f1 <- function(a='A',b=NULL) {
+  print( ifelse( is.null(a), 'a not specified', paste('a =',a) ) )
+  print( ifelse( is.null(b), 'b not specified', paste('b =',b) ) )
+}
+Callf1 <-function(a='A',b=NULL){
+  print( ifelse( is.null(a), '# a not specified', paste('# a =',a) ) )
+  print( ifelse( is.null(b), '# b not specified', paste('# b =',b) ) )
+ f1()
+}
+Callf1(a='A',b=NULL)
+Callf1(a='A',b='B')
+Callf1_2 <-function(a='A',b=NULL){
+  print( ifelse( is.null(a), '# a not specified', paste('# a =',a) ) )
+  print( ifelse( is.null(b), '# b not specified', paste('# b =',b) ) )
+ f1(a,b)
+}
+Callf1_2(a='A',b='NULL')
+Callf1_2(a='A',b='B')
+```
+
+Using **Callf1()**, whether we provide value for *b* or not, it always return `b not specified`.
