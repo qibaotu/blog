@@ -33,7 +33,7 @@ time gatk VariantFiltration \
         -O ${ID}_filtered.vcf
 ```
 
-怀疑这个有问题是因为发现一些.err文件有有说`JexlEngine - ![0,2]: 'QD < 2.0;' undefined variable QD `
+怀疑这个有问题是因为发现一些.err文件提示`JexlEngine - ![0,2]: 'QD < 2.0;' undefined variable QD `
 今天认真看了GATK 的[帖子](https://software.broadinstitute.org/gatk/documentation/article.php?id=1255), 里面尤其提到'To be on the safe, do not use compound expressions with the logical "OR" || as a missing annotation will negate the entire expression.'
 
 更正后的code：
@@ -51,4 +51,4 @@ gatk VariantFiltration \
         -O ${ID}_filtered.vcf
 ```
 
-ps: [this post](https://gatkforums.broadinstitute.org/gatk/discussion/2334/undefined-variable-variantfiltration) discussed the warning about undefined QD.
+ps: [this post](https://gatkforums.broadinstitute.org/gatk/discussion/2334/undefined-variable-variantfiltration) discussed the warning about undefined QD. By default, if JEXL cannot evaluate your expression for a particular record because one of the annotations is not present, the whole expression evaluates as ‘PASS’. Somebody suggest that could add `--missingValuesInExpressionsShouldEvaluateAsFailing`
