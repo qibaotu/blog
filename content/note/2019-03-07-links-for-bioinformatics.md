@@ -12,6 +12,7 @@ Most of the time,I can find the solution to a specific questions via google. But
 1. [Statistical Analysis of Genomics Data](https://newonlinecourses.science.psu.edu/stat555/). Online course provided by PennState University. Comprehensive and easy to understand. ps., other online statistics courses provided by PSU are also very good
 2. [bio-info-trainee](http://www.bio-info-trainee.com/). A website established by Binformatics students(?) in China. kind of forum, many step-by-step tutorials and homeworks. Also comprehensive.
 3. [qio](https://qiubio.com/)
+4. [Bioinformatics and Functional Genomics](http://www.bioinfbook.org/). The website for Bioinformatics and Functional Genomics (3rd edition, Wiley-Blackwell, 2015)
 
 
 
