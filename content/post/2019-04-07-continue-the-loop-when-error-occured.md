@@ -41,6 +41,6 @@ for (i in 1:length(COSMIC)){
 	}
 }
 
-COSMIC2 = tt[-which(sapply(tt, is.null))] # the clean COSMIC profiles for non-empty cell lines
+COSMIC2 = tt[length(tt)!=0] # the clean COSMIC profiles for non-empty cell lines
 
 ```
