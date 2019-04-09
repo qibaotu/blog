@@ -13,7 +13,7 @@ Most of the time,I can find the solution to a specific questions via google. But
 2. [bio-info-trainee](http://www.bio-info-trainee.com/). A website established by Binformatics students(?) in China. kind of forum, many step-by-step tutorials and homeworks. Also comprehensive.
 3. [qio](https://qiubio.com/)
 4. [Bioinformatics and Functional Genomics](http://www.bioinfbook.org/). The website for Bioinformatics and Functional Genomics (3rd edition, Wiley-Blackwell, 2015)
-5. [ntroduction to machine learning](https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/).In-depth introduction to machine learning in 15 hours of expert videos
+5. [Introduction to machine learning](https://www.r-bloggers.com/in-depth-introduction-to-machine-learning-in-15-hours-of-expert-videos/).In-depth introduction to machine learning in 15 hours of expert videos
 
 
 
